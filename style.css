@@ -1,0 +1,89 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #0000;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.main-container {
+    text-align: center;
+}
+
+.game-container {
+    border: 2px solid #fff;
+    display: inline-block;
+    position: relative;
+}
+
+canvas {
+    background-color: #d3d0d0;
+}
+
+/* TETROMINOS COLORS */
+.tetromino-I {
+    background-color: #eee4da;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-O {
+    background-color: #ede0c8;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-L {
+    background-color: #85e2bE;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-J {
+    background-color: #f59563;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-S {
+    background-color: #edcf72;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-Z {
+    background-color: cyan;
+    border: none;
+    box-shadow: none;
+}
+
+.tetromino-T {
+    background-color: #e9bd96;
+    border: none;
+    box-shadow: none;
+}
+
+#gameInfo {
+    margin-top: 10px;
+    color: #fff;
+}
+
+#restartButton {
+    margin-top: 10px;
+    margin-left: 115px;
+    padding: 5px 10px;
+    font-style: 16px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#restartutton:hover{
+    background-color: #999696;
+}
+

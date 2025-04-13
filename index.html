@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!--- meta http-equiv="X-UA-Compatible" content="IE=edge" -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Tetris Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="game-container">
+            <canvas id ="tetrisCanvas"></canvas>
+        </div>
+        <div id="gameInfo">
+            <div id="score"> Score: 0 </div>
+            <button id="restartButton" style="display: none;"></button>
+        </div>
+    </div>
+    <script src="main.js">
+        const canvas = document.getElementById("tetrisCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Tetris grid settings
+        const cols = 10;
+        const rows = 20;
+        const blockSize = 30;
+
+        // Set canvas size
+        canvas.width = cols * blockSize;
+        canvas.height = rows * blockSize;
+
+        // Draw the grid
+        function drawGrid() {
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x <= cols; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * blockSize, 0);
+                ctx.lineTo(x * blockSize, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= rows; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * blockSize);
+                ctx.lineTo(canvas.width, y * blockSize);
+                ctx.stroke();
+            }
+        }
+        drawGrid();
+    </script>
+</body>
+</html>
