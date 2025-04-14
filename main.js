@@ -1,6 +1,7 @@
 const canvas = document.getElementById('tetrisCanvas');
 const ctx = canvas.getContext('2d');
 
+
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 30;
@@ -34,11 +35,23 @@ function getRandomTetromino() {
     return TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
 }
 
+function shapeColor() {
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          ctx.strokeStyle = `rgb(
+              0
+              ${Math.floor(255 - 42.5 * i)}
+              ${Math.floor(255 - 42.5 * j)})`;
+        }
+    }
+}
+
 function drawBlock(x, y, color) {
     ctx.fillStyle = color;
-    ctx.fillRect(x *BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    ctx.strokeStyle = 'white';
-    ctx.strokeRect(x *BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    ctx.fillRect((x *BLOCK_SIZE)-1, (y * BLOCK_SIZE)-1, (BLOCK_SIZE)-1, (BLOCK_SIZE)-1);
+    ctx.strokeStyle = shapeColor();
+    // ctx.strokeStyle = 'rgba(231, 9, 9, 0.51)';
+    ctx.strokeRect((x *BLOCK_SIZE)-1, (y * BLOCK_SIZE)-1, (BLOCK_SIZE)-1, (BLOCK_SIZE)-1);
 }
 
 function drawBoard() {
@@ -52,6 +65,23 @@ function drawBoard() {
     }
 }
 
+// DrawGrid on Canvas
+function draw() {
+    ctx.lineWidth = 0.5;
+    if (canvas.getContext) {
+        for(var x = 0.5; x < 700;x += BLOCK_SIZE) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, 700);
+        }
+        for(var y = 0.5; y < 700; y += BLOCK_SIZE) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(700, y);
+        }
+    ctx.strokeStyle='rgb(221, 221, 221)';
+    ctx.stroke();
+    }
+}
+
 function drawTetromino() {
     const shape = currentTetromino.shape;
     const color = currentTetromino.color;
@@ -62,6 +92,15 @@ function drawTetromino() {
             }
         }
     }
+}
+
+function futurePosition() {
+    const shape = currentTetromino.shape;
+    let futureY = currentPos.y;
+    while (!hasCollision(0, 1)) {
+        futureY++;
+    }
+    return futureY;
 }
 
 function hasCollision(xOffset, yOffset) {
@@ -104,6 +143,7 @@ function removeRows() {
     }
     score += linesRemoved * linesRemoved * 100;
     document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('score').style.display = 'block';
 }
 
 function rotateTetromino() {
@@ -165,6 +205,7 @@ function increaseSpeed() {
 function gameLoop() {
     if (gameOver) return;
     drawBoard();
+    draw();
     drawTetromino();
     moveDown();
     increaseSpeed();
@@ -199,8 +240,10 @@ document.getElementById('restartButton').addEventListener('click',()=> {
     currentPos = {x: 3, y: 0};
     score = 0;
     interval = 1000;
-    document.getElementById('restartButton').style.display = 'none';
+    document.getElementById('showGrid').style.display = 'block';
+    document.getElementById('restartButton').style.display = 'block';
     document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('score').style.display = 'block';
     lastSpeedIcrease = Date.now();
     gameLoop();
 });

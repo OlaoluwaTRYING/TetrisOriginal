@@ -87,3 +87,6 @@ canvas {
     background-color: #999696;
 }
 
+#canvas {
+    border: 1px solid black;
+}
