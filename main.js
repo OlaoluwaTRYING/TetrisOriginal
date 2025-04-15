@@ -27,6 +27,7 @@ let currentPos = {x: 3, y: 0};
 let score = 0;
 let interval = 400;
 let gameOver = false;
+let rAF = null;  // keep track of the animation frame so we can cancel it
 let speedIcreaseInterval = 10000;
 let lastSpeedIcrease = Date.now();
 
@@ -165,6 +166,7 @@ function moveDown() {
         currentPos = {x:3, y:0};
         if (hasCollision(0,0)) {
             gameOver = true;
+            showGameOver();
             document.getElementById('restartButton').style.display = 'block';
         }
     }
@@ -201,6 +203,21 @@ function increaseSpeed() {
         interval = Math.max(500, interval -20);
     }
 }
+
+function showGameOver() {
+    gameOver = true;
+  
+    ctx.fillStyle = 'black';
+    ctx.globalAlpha = 0.75;
+    ctx.fillRect(0, canvas.height / 2 - 30, canvas.width, 60);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'white';
+    ctx.font = '36px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2);
+  }
+  
 
 function gameLoop() {
     if (gameOver) return;
