@@ -1,6 +1,8 @@
 const canvas = document.getElementById('tetrisCanvas');
 const ctx = canvas.getContext('2d');
 
+// Get the canvas position
+const canvasRect = canvas.getBoundingClientRect();
 
 const ROWS = 20;
 const COLS = 10;
@@ -25,7 +27,7 @@ let board = Array.from({length: ROWS},()=>Array(COLS).fill(null));
 let currentTetromino = getRandomTetromino();
 let currentPos = {x: 3, y: 0};
 let score = 0;
-let interval = 400;
+let interval = 500;
 let gameOver = false;
 let rAF = null;  // keep track of the animation frame so we can cancel it
 let speedIcreaseInterval = 10000;
@@ -36,17 +38,19 @@ function getRandomTetromino() {
     return TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
 }
 
+// Unused Function (Setting the stroke color for drawing blocks on the canvas)
 function shapeColor() {
     for (let i = 0; i < 6; i++) {
         for (let j = 0; j < 6; j++) {
-          ctx.strokeStyle = `rgb(
-              0
-              ${Math.floor(255 - 42.5 * i)}
-              ${Math.floor(255 - 42.5 * j)})`;
+            ctx.strokeStyle = `rgb(
+                0
+                ${Math.floor(255 - 42.5 * i)}
+                ${Math.floor(255 - 42.5 * j)})`;
         }
     }
 }
 
+// For rendering individual blocks (or cells) on the canvas
 function drawBlock(x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect((x *BLOCK_SIZE)-1, (y * BLOCK_SIZE)-1, (BLOCK_SIZE)-1, (BLOCK_SIZE)-1);
@@ -55,6 +59,7 @@ function drawBlock(x, y, color) {
     ctx.strokeRect((x *BLOCK_SIZE)-1, (y * BLOCK_SIZE)-1, (BLOCK_SIZE)-1, (BLOCK_SIZE)-1);
 }
 
+// For rendering the tetris game board on the canvas.
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let y = 0; y < ROWS; y++) {
@@ -66,23 +71,24 @@ function drawBoard() {
     }
 }
 
-// DrawGrid on Canvas
+// For drawing grid on Canvas
 function draw() {
     ctx.lineWidth = 0.5;
     if (canvas.getContext) {
-        for(var x = 0.5; x < 700;x += BLOCK_SIZE) {
+        for(var x = 0.5; x < 1000;x += BLOCK_SIZE) {
             ctx.moveTo(x, 0);
-            ctx.lineTo(x, 700);
+            ctx.lineTo(x, 1000);
         }
-        for(var y = 0.5; y < 700; y += BLOCK_SIZE) {
+        for(var y = 0.5; y < 1000; y += BLOCK_SIZE) {
             ctx.moveTo(0, y);
-            ctx.lineTo(700, y);
+            ctx.lineTo(1000, y);
         }
     ctx.strokeStyle='rgb(221, 221, 221)';
     ctx.stroke();
     }
 }
 
+// For drawing the current tetromino on the canvas
 function drawTetromino() {
     const shape = currentTetromino.shape;
     const color = currentTetromino.color;
@@ -95,6 +101,7 @@ function drawTetromino() {
     }
 }
 
+// Unused Function
 function futurePosition() {
     const shape = currentTetromino.shape;
     let futureY = currentPos.y;
@@ -104,6 +111,7 @@ function futurePosition() {
     return futureY;
 }
 
+// Checks for collision between the current tetromino and the board or walls
 function hasCollision(xOffset, yOffset) {
     const shape = currentTetromino.shape;
     for (let y = 0; y< shape.length; y++) {
@@ -119,6 +127,8 @@ function hasCollision(xOffset, yOffset) {
     return false;
 }
 
+// Merges the current tetromino with the board when it lands
+// Updates the score
 function mergeTetromino() {
     const shape = currentTetromino.shape;
     const color = currentTetromino.color;
@@ -126,11 +136,13 @@ function mergeTetromino() {
         for (let x = 0; x < shape[y].length; x++) {
             if (shape[y][x]) {
                 board[currentPos.y + y][currentPos.x + x] = color;
+                score += shape.length;
             }
         }
     }
 }
 
+// Removes completed rows from the board and updates the score
 function removeRows() {
     let linesRemoved = 0;
     for (let y = ROWS - 1; y >= 0; y-- ) {
@@ -147,6 +159,7 @@ function removeRows() {
     document.getElementById('score').style.display = 'block';
 }
 
+// Rotates the current tetromino and checks for collisions
 function rotateTetromino() {
     const shape = currentTetromino.shape;
     const newShape = shape[0].map((_, i) => shape.map(row => row[i]).reverse());
@@ -156,6 +169,7 @@ function rotateTetromino() {
     }
 }
 
+// Moves the current tetromino down and checks for collisions
 function moveDown() {
     if (!hasCollision(0, 1)) {
         currentPos.y++;
@@ -172,6 +186,7 @@ function moveDown() {
     }
 }
 
+// Drops the current tetromino down until it hits the bottom
 function moveDropHard() {
     // Move the tetromino down until it hits the bottom
     while (!hasCollision(0, 1)) {
@@ -190,12 +205,14 @@ function moveDropHard() {
     }
 }
 
+// Moves the current tetromino left or right and checks for collisions
 function move(offsetX) {
     if (!hasCollision (offsetX, 0)) {
         currentPos.x += offsetX;
     }
 }
 
+// Increases the speed of the game every 10 seconds
 function increaseSpeed() {
     const now = Date.now();
     if (now - lastSpeedIcrease >= speedIcreaseInterval) {
@@ -204,6 +221,7 @@ function increaseSpeed() {
     }
 }
 
+// Shows the game over screen and stops the game loop
 function showGameOver() {
     gameOver = true;
   
@@ -216,11 +234,53 @@ function showGameOver() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2);
-  }
-  
+}
 
+// Positions the restart button relative to the canvas
+function positionRestartButton() {
+    const canvas = document.getElementById('tetrisCanvas');
+    const button = document.getElementById('restartButton');
+
+    // Get the canvas position
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Position the button relative to the canvas
+    button.style.position = 'absolute';
+    button.style.top = `${canvasRect.top + (canvas.height / 2) + 50}px`; // 50px below the top of the canvas
+    button.style.left = `${canvasRect.left + (canvas.width / 2)}px`; // 50px from the left of the canvas
+    button.style.zIndex = 10; // Ensure it appears above the canvas
+}
+
+// Positions the score relative to the canvas
+function positionScore() {
+    const canvas = document.getElementById('tetrisCanvas');
+    const score = document.getElementById('score');
+
+    // Get the canvas position
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Position the score relative to the canvas
+    score.style.position = 'absolute';
+    score.style.top = `${canvasRect.top - (canvas.height / 10)}px`; // 30px above the top of the canvas
+    score.style.left = `${canvasRect.left + canvasRect.width / 2}px`; // Centered horizontally relative to the canvas
+    score.style.transform = 'translateX(-50%)'; // Center alignment
+    score.style.zIndex = 10; // Ensure it appears above the canvas
+}
+
+// Call the function to position the button
+positionRestartButton();
+// Call the function to position the score
+positionScore();
+
+// Reposition the button on window resize
+window.addEventListener('resize', positionRestartButton);
+// Reposition the score on window resize
+window.addEventListener('resize', positionScore);
+
+// Main game loop
 function gameLoop() {
-    if (gameOver) return;
+    if (gameOver) return; // Stop the game loop if gameOver is true
+
     drawBoard();
     draw();
     drawTetromino();
@@ -229,6 +289,7 @@ function gameLoop() {
     setTimeout(gameLoop, interval);
 }
 
+// Event listeners for keyboard input and restart button
 document.addEventListener('keydown', (event) => {
     if (gameOver) return;
 
@@ -251,18 +312,27 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-document.getElementById('restartButton').addEventListener('click',()=> {
-    board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+// Event listener for the restart button
+document.getElementById('restartButton').addEventListener('click', () => {
+    // Reset the game state
+    board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     currentTetromino = getRandomTetromino();
-    currentPos = {x: 3, y: 0};
+    currentPos = { x: 3, y: 0 };
     score = 0;
-    interval = 1000;
-    document.getElementById('showGrid').style.display = 'block';
-    document.getElementById('restartButton').style.display = 'block';
+    interval = 500;
+    gameOver = false;
+    speedIcreaseInterval = 10000;
+    lastSpeedIcrease = Date.now();
+
+    // Update the UI
     document.getElementById('score').textContent = `Score: ${score}`;
     document.getElementById('score').style.display = 'block';
-    lastSpeedIcrease = Date.now();
+    document.getElementById('restartButton').style.display = 'none';
+    document.getElementById('restartButton').textContent = `Restart Game`;
+
+    // Restart the game loop
     gameLoop();
 });
 
+// Start the game loop
 gameLoop();
