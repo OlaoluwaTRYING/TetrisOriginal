@@ -1,0 +1,18 @@
+// Restarts the game after game over
+function restartGameAfterGameOver() {
+    // Reset the game state
+    board = Array.from({length: ROWS},()=>Array(COLS).fill(null));
+    currentTetromino = getRandomTetromino();
+    currentPos = {x: 3, y: 0};
+    score = 0;
+    interval = 500;
+    gameOver = false;
+    speedIcreaseInterval = 10000;
+    lastSpeedIcrease = Date.now();
+
+    // Update the UI
+    document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('restartButton').style.display = 'none';
+
+    // Restart the game loop
+}
