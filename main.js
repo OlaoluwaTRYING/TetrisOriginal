@@ -27,11 +27,15 @@ let board = Array.from({length: ROWS},()=>Array(COLS).fill(null));
 let currentTetromino = getRandomTetromino();
 let currentPos = {x: 3, y: 0};
 let score = 0;
-let interval = 500;
+let level = 1; // Track the current level
+let linesCleared = 0; // Track the number of lines cleared
+let lastTime = 0; // Track the last time the game was updated
+let interval = 500; // Desired interval in milliseconds
 let gameOver = false;
 let rAF = null;  // keep track of the animation frame so we can cancel it
 let speedIcreaseInterval = 10000;
 let lastSpeedIcrease = Date.now();
+let requestId = null; // Store the requestAnimationFrame ID
 
 // Functions to Create Pieces and Play
 function getRandomTetromino() {
@@ -154,9 +158,14 @@ function removeRows() {
             y++;
         }
     }
+    linesCleared += linesRemoved;
+    // Update the score based on the number of lines removed
     score += linesRemoved * linesRemoved * 100;
     document.getElementById('score').textContent = `Score: ${score}`;
     document.getElementById('score').style.display = 'block';
+    increaseSpeed()
+    
+    return level;
 }
 
 // Rotates the current tetromino and checks for collisions
@@ -214,11 +223,34 @@ function move(offsetX) {
 
 // Increases the speed of the game every 10 seconds
 function increaseSpeed() {
-    const now = Date.now();
-    if (now - lastSpeedIcrease >= speedIcreaseInterval) {
-        lastSpeedIcrease = now;
-        interval = Math.max(500, interval -20);
+    if (linesCleared >= 15) {
+        level++;
+        linesCleared = 0;
+        // Increase the speed of the game every 15 lines cleared
+        interval = Math.max(100, interval - 25); // Decrease the interval to increase speed 
+        return level;
     }
+}
+
+// Pauses or resumes the game loop
+function pause() {
+    if (!requestId) {
+        document.querySelector('#play-btn').style.display = 'none';
+        document.querySelector('#pause-btn').style.display = 'block';
+        gameLoop();
+        return;
+    }
+  
+    cancelAnimationFrame(requestId);
+    requestId = null;
+  
+    ctx.fillStyle = 'black';
+    ctx.fillRect(1, 3, 8, 1.2);
+    ctx.font = '1px Arial';
+    ctx.fillStyle = 'yellow';
+    ctx.fillText('PAUSED', 3, 4);
+    document.querySelector('#play-btn').style.display = 'block';
+    document.querySelector('#pause-btn').style.display = 'none';
 }
 
 // Shows the game over screen and stops the game loop
@@ -278,15 +310,33 @@ window.addEventListener('resize', positionRestartButton);
 window.addEventListener('resize', positionScore);
 
 // Main game loop
-function gameLoop() {
-    if (gameOver) return; // Stop the game loop if gameOver is true
+function gameLoop(now) {
+    if (gameOver) {
+        console.log('Game Over: Stopping animation loop.');
+        cancelAnimationFrame(requestId); // Stop the animation loop if gameOver is true
+        return;
+    }
 
-    drawBoard();
-    draw();
-    drawTetromino();
-    moveDown();
-    increaseSpeed();
-    setTimeout(gameLoop, interval);
+    // Log the current time and interval
+    console.log(`Current Time: ${now}, Last Time: ${lastTime}, Interval: ${interval}`);
+
+    // Check if enough time has passed since the last update
+    if (now - lastTime >= interval) {
+        lastTime = now;
+
+        // Log that the game state is being updated
+        console.log('Updating game state.');
+
+        // Update game state and render
+        drawBoard();
+        draw();
+        drawTetromino();
+        moveDown();
+        //increaseSpeed();
+    }
+
+    // Schedule the next frame
+    requestId = requestAnimationFrame(gameLoop);
 }
 
 // Event listeners for keyboard input and restart button
@@ -334,5 +384,7 @@ document.getElementById('restartButton').addEventListener('click', () => {
     gameLoop();
 });
 
-// Start the game loop
+document.getElementById('pauseButton').addEventListener('click', pause);
+
+// Start the game loop using requestAnimationFrame
 gameLoop();
