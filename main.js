@@ -13,6 +13,14 @@ canvas.height = ROWS * BLOCK_SIZE;
 
 // Define Tetromino Pieces
 const TETROMINOS = [
+    //{color: '#eee4da', shape: [[1,1,1,1,1]]},
+    //{color: '#ede0c8', shape: [[1,1,0],[0,1,1],[0,0,1]]},
+    //{color: '#85e2bE', shape: [[1,1,1],[1,0,0],[1,0,0]]},
+    //{color: '#f59563', shape: [[1,1,1],[0,0,1],[0,0,1]]},
+    //{color: '#edcf72', shape: [[1,0,0],[1,1,0],[0,1,1]]},
+    //{color: 'cyan', shape: [[1,0,0],[1,1,1],[1,0,0]]},
+    //{color: '#e9bd96', shape: [[0,1,0],[1,1,1],[0,1,0]]},
+
     {color: '#eee4da', shape: [[1,1,1,1]]},
     {color: '#ede0c8', shape: [[1,1],[1,1]]},
     {color: '#85e2bE', shape: [[1,1,1],[1,0,0]]},
@@ -149,24 +157,256 @@ function mergeTetromino() {
 // Removes completed rows from the board and updates the score
 function removeRows() {
     let linesRemoved = 0;
-    for (let y = ROWS - 1; y >= 0; y-- ) {
+    const rowsToRemove = []; // Store the indices of rows to be removed
+
+    // Identify completed rows
+    for (let y = ROWS - 1; y >= 0; y--) {
         if (board[y].every(cell => cell)) {
-            // Remove the row
-            board.splice(y, 1);
-            board.unshift(Array(COLS).fill(null));
-            linesRemoved++;
-            y++;
+            rowsToRemove.push(y);
         }
     }
-    linesCleared += linesRemoved;
-    // Update the score based on the number of lines removed
-    score += linesRemoved * linesRemoved * 100;
-    document.getElementById('score').textContent = `Score: ${score}`;
-    document.getElementById('score').style.display = 'block';
-    increaseSpeed()
-    
+
+    if (rowsToRemove.length > 0) {
+        console.log(`Rows to remove: ${rowsToRemove}`); // Debugging log
+
+        // Highlight the rows to be removed
+        rowsToRemove.forEach(row => {
+            for (let x = 0; x < COLS; x++) {
+                board[row][x] = 'rgba(255, 255, 255, 0.9)'; // Highlight with a bright color
+            }
+        });
+
+        // Redraw the board to show the highlight
+        drawBoard();
+
+        // Fragmentation animation
+        let animationFrame = 0;
+        const maxFrames = 30; // Number of frames for the animation
+
+        function animateFragmentation() {
+            animationFrame++;
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw the board excluding the rows to be removed
+            for (let y = 0; y < ROWS; y++) {
+                if (!rowsToRemove.includes(y)) {
+                    for (let x = 0; x < COLS; x++) {
+                        if (board[y][x]) {
+                            drawBlock(x, y, board[y][x]);
+                        }
+                    }
+                }
+            }
+
+            // Animate the blocks in the rows to be removed
+            rowsToRemove.forEach(row => {
+                for (let x = 0; x < COLS; x++) {
+                    if (board[row][x]) {
+                        const offsetX = (Math.random() - 0.5) * (animationFrame * 0.25); // Random horizontal movement
+                        const offsetY = (Math.random() - 0.5) * (animationFrame * 0.25); // Random vertical movement
+                        drawBlock(x + offsetX / BLOCK_SIZE, row + offsetY / BLOCK_SIZE, board[row][x]);
+                    }
+                }
+            });
+
+            // Continue the animation or remove the rows
+            if (animationFrame < maxFrames) {
+                requestAnimationFrame(animateFragmentation);
+            } else {
+                console.log('Animation complete. Removing rows.'); // Debugging log
+
+                // Remove the rows after the animation
+                for (let i = rowsToRemove.length - 1; i >= 0; i--) {
+                    const row = rowsToRemove[i];
+                    board.splice(row, 1); // Remove the row
+                    board.unshift(Array(COLS).fill(null)); // Add an empty row at the top
+                    linesRemoved++;
+                }
+
+                linesCleared += linesRemoved;
+
+                // Update the score based on the number of lines removed
+                score += linesRemoved * linesRemoved * 100;
+                document.getElementById('score').textContent = `Score: ${score}`;
+                document.getElementById('score').style.display = 'block';
+
+                // Redraw the board after removing rows
+                drawBoard();
+
+                // Increase speed if necessary
+                increaseSpeed();
+            }
+        }
+
+        // Start the fragmentation animation
+        animateFragmentation();
+    } else {
+        console.log('No rows to remove.'); // Debugging log
+    }
+
     return level;
 }
+
+
+/*function removeRows() {
+    let linesRemoved = 0;
+    const rowsToRemove = []; // Store the indices of rows to be removed
+
+    // Identify completed rows
+    for (let y = ROWS - 1; y >= 0; y--) {
+        if (board[y].every(cell => cell)) {
+            rowsToRemove.push(y);
+        }
+    }
+
+    if (rowsToRemove.length > 0) {
+        console.log(`Rows to remove: ${rowsToRemove}`); // Debugging log
+
+        // Highlight the rows to be removed
+        rowsToRemove.forEach(row => {
+            for (let x = 0; x < COLS; x++) {
+                board[row][x] = 'rgba(255, 255, 255, 0.9)'; // Highlight with a bright color
+            }
+        });
+        
+        // Redraw the board to show the highlight
+        drawBoard();
+
+        // Fragmentation animation
+        let animationFrame = 0;
+        const maxFrames = 30; // Number of frames for the animation
+
+        function animateFragmentation() {
+            animationFrame++;
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw the board excluding the rows to be removed
+            for (let y = 0; y < ROWS; y++) {
+                if (!rowsToRemove.includes(y)) {
+                    for (let x = 0; x < COLS; x++) {
+                        if (board[y][x]) {
+                            drawBlock(x, y, board[y][x]);
+                        }
+                    }
+                }
+            }
+            // Animate the blocks in the rows to be removed
+            rowsToRemove.forEach(row => {
+                for (let x = 0; x < COLS; x++) {
+                    if (board[row][x]) {
+                        const offsetX = (Math.random() - 0.5) * (animationFrame*0.25); // Random horizontal movement
+                        const offsetY = (Math.random() - 0.5) * (animationFrame*0.25); // Random vertical movement
+                        drawBlock(x + offsetX / BLOCK_SIZE, row + offsetY / BLOCK_SIZE, board[row][x]);
+                    }
+                }
+            });
+            // Continue the animation or remove the rows
+            if (animationFrame < maxFrames) {
+                requestAnimationFrame(animateFragmentation);
+            } else {
+                console.log('Animation complete. Removing rows.'); // Debugging log
+                // Remove the rows after the animation
+                rowsToRemove.forEach(row => {
+                    board.splice(row, 1); // Remove the row
+                    board.unshift(Array(COLS).fill(null)); // Add an empty row at the top
+                    linesRemoved++;
+                });
+                linesCleared += linesRemoved;
+                // Update the score based on the number of lines removed
+                score += linesRemoved * linesRemoved * 100;
+                document.getElementById('score').textContent = `Score: ${score}`;
+                document.getElementById('score').style.display = 'block';
+                // Redraw the board after removing rows
+                drawBoard();
+                // Increase speed if necessary
+                increaseSpeed();
+            }
+        }
+        // Start the fragmentation animation
+        animateFragmentation();
+    } else {
+        console.log('No rows to remove.'); // Debugging log
+    }
+
+    return level;
+}*/
+
+
+
+/*function removeRows() {
+    let linesRemoved = 0;
+    const rowsToRemove = []; // Store the indices of rows to be removed
+
+    // Identify completed rows
+    for (let y = ROWS - 1; y >= 0; y--) {
+        if (board[y].every(cell => cell)) {
+            rowsToRemove.push(y);
+        }
+    }
+
+    if (rowsToRemove.length > 0) {
+        // Highlight the rows to be removed
+        rowsToRemove.forEach(row => {
+            for (let x = 0; x < COLS; x++) {
+                board[row][x] = 'rgba(255, 255, 255, 0.9)'; // Highlight with a bright color
+            }
+        });
+
+        // Redraw the board to show the highlight
+        drawBoard();
+
+        // Delay the removal of rows for animation
+        setTimeout(() => {
+            rowsToRemove.forEach(row => {
+                board.splice(row, 1); // Remove the row
+                board.unshift(Array(COLS).fill(null)); // Add an empty row at the top
+                linesRemoved++;
+            });
+
+            linesCleared += linesRemoved;
+
+            // Update the score based on the number of lines removed
+            score += linesRemoved * linesRemoved * 100;
+            document.getElementById('score').textContent = `Score: ${score}`;
+            document.getElementById('score').style.display = 'block';
+
+            // Redraw the board after removing rows
+            drawBoard();
+
+            // Increase speed if necessary
+            increaseSpeed();
+        }, 300); // Delay of 300ms for the animation
+    }
+    return level;
+}*/
+
+
+// function removeRows() {
+//     let linesRemoved = 0;
+
+    // Identify completed rows
+//     for (let y = ROWS - 1; y >= 0; y-- ) {
+//         if (board[y].every(cell => cell)) {
+//             // Remove the row
+//             board.splice(y, 1);
+//             board.unshift(Array(COLS).fill(null));
+//             linesRemoved++;
+//             y++;
+//         }
+//     }
+//     linesCleared += linesRemoved;
+    // Update the score based on the number of lines removed
+//     score += linesRemoved * linesRemoved * 100;
+//     document.getElementById('score').textContent = `Score: ${score}`;
+//     document.getElementById('score').style.display = 'block';
+//     increaseSpeed()
+    
+//     return level;
+// }
 
 // Rotates the current tetromino and checks for collisions
 function rotateTetromino() {
@@ -233,32 +473,32 @@ function increaseSpeed() {
 }
 
 // Pauses or resumes the game loop
-function pause() {
-    if (!requestId) {
-        document.querySelector('#play-btn').style.display = 'none';
-        document.querySelector('#pause-btn').style.display = 'block';
-        gameLoop();
-        return;
-    }
+//function pause() {
+//    if (!requestId) {
+//        document.querySelector('#play-btn').style.display = 'none';
+//        document.querySelector('#pause-btn').style.display = 'block';
+//        gameLoop();
+//        return;
+// }
   
-    cancelAnimationFrame(requestId);
-    requestId = null;
+//    cancelAnimationFrame(requestId);
+//    requestId = null;
   
-    ctx.fillStyle = 'black';
-    ctx.fillRect(1, 3, 8, 1.2);
-    ctx.font = '1px Arial';
-    ctx.fillStyle = 'yellow';
-    ctx.fillText('PAUSED', 3, 4);
-    document.querySelector('#play-btn').style.display = 'block';
-    document.querySelector('#pause-btn').style.display = 'none';
-}
+//    ctx.fillStyle = 'black';
+//    ctx.fillRect(1, 3, 8, 1.2);
+//    ctx.font = '1px Arial';
+//    ctx.fillStyle = 'yellow';
+//    ctx.fillText('PAUSED', 3, 4);
+//    document.querySelector('#play-btn').style.display = 'block';
+//    document.querySelector('#pause-btn').style.display = 'none';
+//}
 
 // Shows the game over screen and stops the game loop
 function showGameOver() {
     gameOver = true;
   
     ctx.fillStyle = 'black';
-    ctx.globalAlpha = 0.75;
+    ctx.globalAlpha = 0.9;
     ctx.fillRect(0, canvas.height / 2 - 30, canvas.width, 60);
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'white';
@@ -278,8 +518,8 @@ function positionRestartButton() {
 
     // Position the button relative to the canvas
     button.style.position = 'absolute';
-    button.style.top = `${canvasRect.top + (canvas.height / 2) + 50}px`; // 50px below the top of the canvas
-    button.style.left = `${canvasRect.left + (canvas.width / 2)}px`; // 50px from the left of the canvas
+    button.style.top = `${canvasRect.top + (canvas.height / 2) + 30}px`; // 50px below the top of the canvas
+    button.style.left = `${canvasRect.left + canvasRect.width / 4}px`; // 50px from the left of the canvas
     button.style.zIndex = 10; // Ensure it appears above the canvas
 }
 
@@ -362,7 +602,34 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Event listener for the restart button
+
+// Event listener for the Play button
+document.getElementById('playButton').addEventListener('click', () => {
+    if (!requestId && !gameOver) {
+        // Hide the Play button and show the Pause button
+        document.getElementById('playButton').style.display = 'none';
+        document.getElementById('pauseButton').style.display = 'inline-block';
+
+        // Start the game loop
+        requestId = requestAnimationFrame(gameLoop);
+    }
+});
+
+// Event listener for the Pause button
+document.getElementById('pauseButton').addEventListener('click', () => {
+    if (requestId) {
+        // Cancel the animation frame
+        cancelAnimationFrame(requestId);
+        requestId = null;
+
+        // Hide the Pause button and show the Play button
+        document.getElementById('pauseButton').style.display = 'none';
+        document.getElementById('playButton').style.display = 'inline-block';
+    }
+});
+
+
+// Event listener for the Restart button
 document.getElementById('restartButton').addEventListener('click', () => {
     // Reset the game state
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -378,13 +645,13 @@ document.getElementById('restartButton').addEventListener('click', () => {
     document.getElementById('score').textContent = `Score: ${score}`;
     document.getElementById('score').style.display = 'block';
     document.getElementById('restartButton').style.display = 'none';
-    document.getElementById('restartButton').textContent = `Restart Game`;
+    // document.getElementById('restartButton').textContent = `Restart Game`;
 
     // Restart the game loop
-    gameLoop();
+    requestId = requestAnimationFrame(gameLoop);
 });
 
-document.getElementById('pauseButton').addEventListener('click', pause);
+// document.getElementById('pauseButton').addEventListener('click', pause);
 
 // Start the game loop using requestAnimationFrame
-gameLoop();
+//gameLoop();

@@ -71,7 +71,7 @@ canvas {
     color: #fff;
 }
 
-#restartButton {
+/*#restartButton {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -94,9 +94,9 @@ canvas {
     z-index: 10;
 }
 
-#restartButton:hover {
+/* #restartButton:hover {
     background-color: #dfc595;
-}
+} */
 
 #canvas {
     border: 1px solid black;
@@ -114,4 +114,25 @@ canvas {
     padding: 5px 10px;
     border-radius: 5px;
     text-align: center;
+}
+
+.button {
+    background-color: #3a923e;
+    color: white;
+    border: none;
+    padding: 6px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    margin: 2px 2px;
+    cursor: pointer;
+    border-radius: 25px;
+    width: 100px; /* Fixed width */
+    height: 40px; /* Fixed height */
+}
+
+.button:hover {
+    background-color: #1d5f21;
 }
