@@ -40,6 +40,15 @@
 
 <body onload ='draw()'>
     <div class="main-container">
+        <!--- div id="modeSelection">
+            <label for="gameMode">Select Game Mode:</label>
+            <select id="gameMode">
+                <option value="classic">Classic</option>
+                <option value="timeAttack">Time Attack</option>
+                <option value="endless">Endless</option>
+            </select>
+            <button id="startGameButton">Start Game</button>
+        </div --->
         <div id="score"> Score: 0 </div>
         <button id="playButton" class = "button">Play</button>
         <button id="pauseButton" class = "button" style='display: none;'>Pause</button>
@@ -52,6 +61,7 @@
         </div>
         <p id='showGrid'></p>
     </div>
+    <!--script type="module" src="main.js"></script-->
     <script src="main.js"></script>
 </body>
 </html>

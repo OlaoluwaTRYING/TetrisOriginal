@@ -1,3 +1,66 @@
+// Import game modes logic
+/*import { getGameModeConfig } from './gameModes.js';
+
+let selectedMode = "classic"; // Default mode
+let scoringMultiplier = 1; // Default scoring multiplier
+
+// Event listener for mode selection
+document.getElementById('gameMode').addEventListener('change', (event) => {
+    selectedMode = event.target.value;
+    console.log(`Selected mode: ${selectedMode}`);
+});*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+
+
+
+
+
 const canvas = document.getElementById('tetrisCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -40,7 +103,6 @@ let linesCleared = 0; // Track the number of lines cleared
 let lastTime = 0; // Track the last time the game was updated
 let interval = 500; // Desired interval in milliseconds
 let gameOver = false;
-let rAF = null;  // keep track of the animation frame so we can cancel it
 let speedIcreaseInterval = 10000;
 let lastSpeedIcrease = Date.now();
 let requestId = null; // Store the requestAnimationFrame ID
@@ -148,10 +210,13 @@ function mergeTetromino() {
         for (let x = 0; x < shape[y].length; x++) {
             if (shape[y][x]) {
                 board[currentPos.y + y][currentPos.x + x] = color;
-                score += shape.length;
+                //score += 20;
             }
         }
     }
+    // Update the score in the UI
+    //document.getElementById('score').textContent = `Score: ${score}`;
+    //document.getElementById('score').style.display = 'block';
 }
 
 // Removes completed rows from the board and updates the score
@@ -228,10 +293,15 @@ function removeRows() {
                 linesCleared += linesRemoved;
 
                 // Update the score based on the number of lines removed
-                score += linesRemoved * linesRemoved * 100;
+                score += linesRemoved * linesRemoved * 100; // This Multiplies also in the case of a combo! 
                 document.getElementById('score').textContent = `Score: ${score}`;
                 document.getElementById('score').style.display = 'block';
 
+                // Display combo text if more than one line is removed
+                if (linesRemoved > 1) {
+                    displayComboText(linesRemoved);
+                }
+                
                 // Redraw the board after removing rows
                 drawBoard();
 
@@ -249,6 +319,33 @@ function removeRows() {
     return level;
 }
 
+// Displays the combo text when multiple lines are removed
+function displayComboText(linesRemoved) {
+    const comboText = `${linesRemoved} Lines Combo!`;
+    const comboElement = document.createElement('div');
+    
+    // Set the combo text content
+    comboElement.textContent = comboText;
+    
+    // Style the combo text
+    comboElement.style.position = 'absolute';
+    comboElement.style.top = `${canvasRect.top + canvasRect.height / 2}px`;
+    comboElement.style.left = `${canvasRect.Left + canvasRect.width / 2}px`;
+    comboElement.style.transform = 'translate(25%, 0%)';
+    comboElement.style.color = 'red';
+    comboElement.style.fontSize = '24px';
+    comboElement.style.fontWeight = 'bold';
+    comboElement.style.zIndex = 10;
+    comboElement.style.textAlign = 'center';
+
+    // Append the combo text to the document body
+    document.body.appendChild(comboElement);
+
+    // Remove the combo text after 1 second
+    setTimeout(() => {
+        document.body.removeChild(comboElement);
+    }, 1000);
+}
 
 /*function removeRows() {
     let linesRemoved = 0;
@@ -558,7 +655,7 @@ function gameLoop(now) {
     }
 
     // Log the current time and interval
-    console.log(`Current Time: ${now}, Last Time: ${lastTime}, Interval: ${interval}`);
+    //console.log(`Current Time: ${now}, Last Time: ${lastTime}, Interval: ${interval}`);
 
     // Check if enough time has passed since the last update
     if (now - lastTime >= interval) {
@@ -603,6 +700,53 @@ document.addEventListener('keydown', (event) => {
 });
 
 
+
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+
+// Event listener for the Start Game button
+/*document.getElementById('startGameButton').addEventListener('click', () => {
+    console.log('Start Game button clicked');
+    console.log(`requestId: ${requestId}, gameOver: ${gameOver}`);
+
+    console.log('Starting game...');
+    const modeConfig = getGameModeConfig(selectedMode);
+    console.log(`Mode Config:`, modeConfig);
+
+    // Configure the game based on the selected mode
+    interval = modeConfig.interval;
+    scoringMultiplier = modeConfig.scoringMultiplier;
+
+    // Reset the game state
+    board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    currentTetromino = getRandomTetromino();
+    currentPos = { x: 3, y: 0 };
+    score = 0;
+    interval = 500;
+    linesCleared = 0;
+    gameOver = false;
+    speedIcreaseInterval = 10000;
+    lastSpeedIcrease = Date.now();
+
+    // Update the UI
+    document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('score').style.display = 'block';
+    document.getElementById('restartButton').style.display = 'none';
+
+    // Start the game loop
+    requestId = requestAnimationFrame(gameLoop);
+    
+});*/
+
+
+
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+// --------------------------------------------------------------- //
+
+
+
 // Event listener for the Play button
 document.getElementById('playButton').addEventListener('click', () => {
     if (!requestId && !gameOver) {
@@ -637,6 +781,7 @@ document.getElementById('restartButton').addEventListener('click', () => {
     currentPos = { x: 3, y: 0 };
     score = 0;
     interval = 500;
+    linesCleared = 0;
     gameOver = false;
     speedIcreaseInterval = 10000;
     lastSpeedIcrease = Date.now();
@@ -645,10 +790,13 @@ document.getElementById('restartButton').addEventListener('click', () => {
     document.getElementById('score').textContent = `Score: ${score}`;
     document.getElementById('score').style.display = 'block';
     document.getElementById('restartButton').style.display = 'none';
+
     // document.getElementById('restartButton').textContent = `Restart Game`;
 
     // Restart the game loop
+
     requestId = requestAnimationFrame(gameLoop);
+
 });
 
 // document.getElementById('pauseButton').addEventListener('click', pause);

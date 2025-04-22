@@ -71,26 +71,23 @@ canvas {
     color: #fff;
 }
 
-/*#restartButton {
+#restartButton {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     line-height: normal;
     position: absolute;
-    top: 55%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 10px 20px;
-    font-size: 15px;
-    background-color: #ebac4d;
+    transform: translate(0%, 0%);
+    padding: 6px 20px;
+/*   background-color: #ebac4d;*/
     color: #fff;
-    border: 1px solid #000000;
-    border-radius: 1px;
-    cursor: pointer;
+    border: 1px solid #0b200c;
     text-align: center;
-    width: 150px;
-    height: 30px;
+    width: 170px;
+    height: 40px;
     z-index: 10;
 }
 
